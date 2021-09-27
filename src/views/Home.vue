@@ -1,15 +1,17 @@
 <template>
-  <hello-world />
+  <v-container>
+    <add-new-task />
+  </v-container>
 </template>
 
 <script>
-import HelloWorld from "../components/HelloWorld";
+import AddNewTask from "../components/AddNewTask";
 
 export default {
   name: "Home",
 
   components: {
-    HelloWorld,
+    AddNewTask,
   },
 };
 </script>

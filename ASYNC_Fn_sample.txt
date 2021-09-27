@@ -1,0 +1,86 @@
+import { TIMEOUT_SEC } from "./config.js";
+import { API_TASKS_URL } from "./config.js";
+
+const btn = document.querySelector("#add");
+const btnDelete = document.querySelector("#delete");
+const idDelete = document.querySelector("#id");
+
+const testTask = {
+  content: "Do MORE Coding Practise",
+  date: "Today",
+  important: true,
+};
+
+/* let xhttp = new XMLHttpRequest();
+xhttp.onreadystatechange = function () {
+  if (this.readyState == 4 && this.status == 200) {
+    const data = JSON.parse(xhttp.responseText);
+    console.log(data);
+  }
+};
+xhttp.open("GET", "db.json");
+xhttp.send(); */
+
+const timeout = function (sec) {
+  return new Promise(function (_, reject) {
+    setTimeout(() => {
+      reject(new Error(`Timeout, Could not connect to data in time`));
+    }, sec * 1000);
+  });
+};
+
+const ajaxGetData = async function (url, uploadData = undefined) {
+  try {
+    const fetchData = uploadData
+      ? fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(uploadData),
+        })
+      : fetch(url);
+
+    const response = await Promise.race([fetchData, timeout(TIMEOUT_SEC)]);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(`Error`);
+    }
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const displayTasks = async function () {
+  const tasks = await ajaxGetData(API_TASKS_URL);
+
+  tasks.forEach((task) => {
+    let html = `<p>${task.content}<span>----${task.id}</span></p>`;
+    document.body.insertAdjacentHTML("afterbegin", html);
+  });
+};
+
+const deleteTask = async function (id) {
+  const res = await fetch(`${API_TASKS_URL}/${id}`, {
+    method: "DELETE",
+  });
+};
+
+const addTask = async function (uploadData) {
+  await ajaxGetData(API_TASKS_URL, uploadData);
+  return fetchData;
+};
+
+btn.addEventListener("click", function (e) {
+  e.preventDefault();
+  addTask(testTask);
+});
+
+btnDelete.addEventListener("click", function (e) {
+  e.preventDefault();
+  deleteTask(idDelete.value);
+});
+
+displayTasks();
